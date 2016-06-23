@@ -10,7 +10,15 @@ db.once('open', function() {
 
 var server = restify.createServer();
 server.use(restify.bodyParser()); 
+server.use(restify.CORS());
 
+server.opts(/.*/, function (req,res,next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", req.header("Access-Control-Request-Method"));
+    res.header("Access-Control-Allow-Headers", req.header("Access-Control-Request-Headers"));
+    res.send(200);
+    return next();
+});
 
 var Task = mongoose.model('Task', {
   title : String,
@@ -26,12 +34,13 @@ server.get('/hello/:name', function(req, res, next){
   next();
 });
 
-server.get('/task', function(req, res){
+server.get('/task', function(req, res, next){
   Task.find({}, function(err, t) {
     if (err){
       res.send(err)
     }
     res.json(t); // return all todos in JSON format
+    return next();    
   });
 });
 
