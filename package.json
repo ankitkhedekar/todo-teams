@@ -13,8 +13,6 @@
     "restify": "^4.1.1"
   },
   "devDependencies": {
-    "gulp": "^3.9.1",
-    "gulp-browserify": "^0.5.1",
-    "gulp-connect": "^4.1.0"
+
   }
 }
