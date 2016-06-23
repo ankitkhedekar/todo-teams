@@ -17,7 +17,8 @@ var Task = mongoose.model('Task', {
   desc: String,
   forTeam: String,
   byTeam: String,
-  createdAt: Date
+  createdAt: Date,
+  status: String
 });
 
 
@@ -41,7 +42,8 @@ server.post('/task', function(req, res){
     desc: req.body.desc,
     forTeam: req.body.forTeam,
     byTeam: req.body.byTeam,
-    createdAt: new Date()
+    createdAt: new Date(),
+    status: "active"
   });
 
   newTask.save(function(err, savedTask){
@@ -49,14 +51,24 @@ server.post('/task', function(req, res){
       console.error(err);
       return res.send(err);
     }
-
     return res.send("Task created");
   });
 });
 
 
-
-
+server.patch('/task/:taskId', function(req, res, next){
+  var updateobj = [];
+  var query = {'_id': req.params.taskId};
+  if(req.body.status){
+    updateobj["status"] = req.body.status;
+  }
+  Task.findOneAndUpdate(query, updateobj, function(err){
+    if(err){
+      return next(err)
+    }
+    return res.send("patched");
+  });
+});
 
 server.listen(8080, function() {
   console.log('%s listening at %s', server.name, server.url);
