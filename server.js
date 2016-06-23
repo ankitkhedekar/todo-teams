@@ -57,11 +57,12 @@ server.post('/task', function(req, res){
 
 
 server.patch('/task/:taskId', function(req, res, next){
-  var updateobj = [];
+  var updateobj = {};
   var query = {'_id': req.params.taskId};
   if(req.body.status){
     updateobj["status"] = req.body.status;
   }
+
   Task.findOneAndUpdate(query, updateobj, function(err){
     if(err){
       return next(err)
