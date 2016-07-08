@@ -20,6 +20,12 @@ server.opts(/.*/, function (req,res,next) {
   return next();
 });
 
+var Team = mongoose.model('Team',{
+  name : {
+    type: String,
+    required: [true]
+  }
+});
 
 var Task = mongoose.model('Task', {
   title : {
@@ -42,6 +48,9 @@ var Task = mongoose.model('Task', {
     type:Date,
     required: [true]
   },
+  updatedAt: {
+    type:Date
+  },
   status: {
     type:String,
     required: [true]
@@ -52,6 +61,30 @@ var Task = mongoose.model('Task', {
 server.get('/hello/:name', function(req, res, next){
   res.send('hello ' + req.params.name);
   next();
+});
+
+server.get('/team/', function(req, res, next){
+  Team.find({}, function(err, t) {
+    if (err){
+      res.send(err)
+    }
+    res.json(t); // return all teams in JSON format
+    return next();  
+  });
+});
+
+server.post('/team', function(req, res){
+  var newTeam = new Team({
+    name : req.body.name
+  });
+
+  newTeam.save(function(err, savedTeam){
+    if (err){
+      console.error(err);
+      return res.send(err);
+    }
+    return res.send(savedTeam);
+  });
 });
 
 server.get('/task', function(req, res){
@@ -93,6 +126,7 @@ server.patch('/task/:taskId', function(req, res, next){
   var query = {'_id': req.params.taskId};
   if(req.body.status){
     updateobj["status"] = req.body.status;
+    updateobj["updatedAt"] = new Date();
   }
 
   Task.findOneAndUpdate(query, updateobj, function(err){
