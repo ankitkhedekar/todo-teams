@@ -2,7 +2,7 @@ var restify = require('restify');
 var mongoose = require('mongoose');
 var db = mongoose.connection;
 
-mongoose.connect('mongodb://localhost/test');
+mongoose.connect('mongodb://localhost/todos');
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
   console.log('Connection established');
@@ -23,6 +23,10 @@ server.opts(/.*/, function (req,res,next) {
 var Team = mongoose.model('Team',{
   name : {
     type: String,
+    required: [true]
+  },
+  color:{
+    type:String,
     required: [true]
   }
 });
@@ -74,8 +78,10 @@ server.get('/team/', function(req, res, next){
 });
 
 server.post('/team', function(req, res){
+  var color = '#'+(Math.random()*0xFFFFFF<<0).toString(16);
   var newTeam = new Team({
-    name : req.body.name
+    name : req.body.name,
+    color : color
   });
 
   newTeam.save(function(err, savedTeam){
@@ -116,7 +122,7 @@ server.post('/task', function(req, res){
       console.error(err);
       return res.send(err);
     }
-    return res.send("Task created");
+    return res.send(savedTask);
   });
 });
 
@@ -126,14 +132,14 @@ server.patch('/task/:taskId', function(req, res, next){
   var query = {'_id': req.params.taskId};
   if(req.body.status){
     updateobj["status"] = req.body.status;
-    updateobj["updatedAt"] = new Date();
+    updateobj["updatedAt"] = new Date("");
   }
 
-  Task.findOneAndUpdate(query, updateobj, function(err){
+  Task.findOneAndUpdate(query, updateobj, {new: true}, function(err, updatedTeam){
     if(err){
       return next(err)
     }
-    return res.send("patched");
+    return res.send(updatedTeam);
   });
 });
 
