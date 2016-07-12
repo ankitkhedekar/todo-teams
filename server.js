@@ -132,7 +132,7 @@ server.patch('/task/:taskId', function(req, res, next){
   var query = {'_id': req.params.taskId};
   if(req.body.status){
     updateobj["status"] = req.body.status;
-    updateobj["updatedAt"] = new Date("");
+    updateobj["updatedAt"] = new Date();
   }
 
   Task.findOneAndUpdate(query, updateobj, {new: true}, function(err, updatedTeam){
