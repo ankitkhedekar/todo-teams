@@ -78,10 +78,9 @@ server.get('/team/', function(req, res, next){
 });
 
 server.post('/team', function(req, res){
-  var color = '#'+(Math.random()*0xFFFFFF<<0).toString(16);
   var newTeam = new Team({
     name : req.body.name,
-    color : color
+    color : req.body.color
   });
 
   newTeam.save(function(err, savedTeam){
