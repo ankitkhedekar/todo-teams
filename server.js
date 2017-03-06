@@ -1,5 +1,9 @@
 var restify = require('restify');
 var mongoose = require('mongoose');
+var Team = require('./models/team');
+var Task = require('./models/task');
+
+
 var db = mongoose.connection;
 
 mongoose.connect('mongodb://localhost/todos');
@@ -20,47 +24,6 @@ server.opts(/.*/, function (req,res,next) {
   return next();
 });
 
-var Team = mongoose.model('Team',{
-  name : {
-    type: String,
-    required: [true]
-  },
-  color:{
-    type:String,
-    required: [true]
-  }
-});
-
-var Task = mongoose.model('Task', {
-  title : {
-    type: String,
-    required: [true]
-  },
-  desc: {
-    type:String,
-    required: [true]
-  },
-  forTeam: {
-    type:String,
-    required: [true]
-  },
-  byTeam: {
-    type:String,
-    required: [true]
-  },
-  createdAt: {
-    type:Date,
-    required: [true]
-  },
-  updatedAt: {
-    type:Date
-  },
-  status: {
-    type:String,
-    required: [true]
-  },
-});
-
 
 server.get('/hello/:name', function(req, res, next){
   res.send('hello ' + req.params.name);
@@ -68,7 +31,7 @@ server.get('/hello/:name', function(req, res, next){
 });
 
 server.get('/team/', function(req, res, next){
-  Team.find({}, function(err, t) {
+  Team.getAllTeams(function(err, t) {
     if (err){
       res.send(err)
     }
@@ -78,12 +41,7 @@ server.get('/team/', function(req, res, next){
 });
 
 server.post('/team', function(req, res){
-  var newTeam = new Team({
-    name : req.body.name,
-    color : req.body.color
-  });
-
-  newTeam.save(function(err, savedTeam){
+  Team.createNewTeam(req.body.name, req.body.color, function(err, savedTeam){
     if (err){
       console.error(err);
       return res.send(err);
@@ -93,7 +51,7 @@ server.post('/team', function(req, res){
 });
 
 server.get('/task', function(req, res){
-  Task.find({}, function(err, t) {
+  Task.getAllTasks(function(err, t) {
     if (err){
       res.send(err)
     }
@@ -102,21 +60,7 @@ server.get('/task', function(req, res){
 });
 
 server.post('/task', function(req, res){
-  var newTask = new Task({
-    title : req.body.title,
-    desc: req.body.desc,
-    forTeam: req.body.forTeam,
-    byTeam: req.body.byTeam,
-    createdAt: new Date(),
-    status: "active"
-  });
-
-  var validationErr = newTask.validateSync();
-  if(validationErr){
-    return res.send(400, validationErr.errors);
-  }
-
-  newTask.save(function(err, savedTask){
+  Task.createNewTask(req.body, function(err, savedTask){
     if (err){
       console.error(err);
       return res.send(err);
@@ -127,14 +71,7 @@ server.post('/task', function(req, res){
 
 
 server.patch('/task/:taskId', function(req, res, next){
-  var updateobj = {};
-  var query = {'_id': req.params.taskId};
-  if(req.body.status){
-    updateobj["status"] = req.body.status;
-    updateobj["updatedAt"] = new Date();
-  }
-
-  Task.findOneAndUpdate(query, updateobj, {new: true}, function(err, updatedTeam){
+  Task.updateTaskById(req.params.taskId, req.body.status, function(err, updatedTeam){
     if(err){
       return next(err)
     }
