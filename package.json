@@ -4,13 +4,15 @@
   "description": "Simple todo application for teams to manage interdependencies",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha tests/task.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "mocha": "^3.2.0",
     "mongoose": "^4.5.0",
+    "nodemon": "*",
     "restify": "^4.1.1",
-    "nodemon": "*"
+    "should": "^11.2.0"
   }
 }
